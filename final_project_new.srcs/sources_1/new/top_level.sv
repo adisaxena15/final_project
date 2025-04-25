@@ -41,10 +41,15 @@ module top_level (
     
     logic [15:0] current_pixel;
     logic take_photo; 
-    logic [3:0] pixel_nibbles[4];
     
+    logic [3:0] pixel_nibbles[4];
     logic [15:0] data_display_value;
     
+    assign xclk  = clk_24MHz;
+    assign reset = 1'b1;
+    assign pwdn  = 1'b0;
+    
+    //variables to show the slowed down data inputs
     logic [15:0] latched_display_value = 16'h0000;
     logic [23:0] hex_refresh_counter = 0;
     logic [15:0] latched_pixel;
@@ -61,29 +66,29 @@ module top_level (
     .locked(clk_locked),   
     .clk_in1(clk_100MHz)
 );
-	assign xclk  = clk_24MHz;
-    assign reset = 1'b1;
-    assign pwdn  = 1'b0;
-    
-    
     camera_module cam_inst (
     .data(data), .pclk(pclk), .hsync(hsync), .vsync(vsync), .image(image), .take_photo(take_photo), .current_pixel(current_pixel), .frame_done(frame_done)
     );
-
+/*
     always_ff @(posedge clk_100MHz) begin
         if (frame_done)
             latched_pixel <= image[0][0];
     end
-
+    
     assign data_display_value = latched_pixel;
+    */
+    assign data_display_value = {8'hFF, data};
+    
+    
     always_ff @(posedge clk_100MHz) begin
-    hex_refresh_counter <= hex_refresh_counter + 1;
+        hex_refresh_counter <= hex_refresh_counter + 1;
 
-    if (hex_refresh_counter == 24'd10_000_000) begin
-        hex_refresh_counter <= 0;
-        latched_display_value <= data_display_value;  // update only once every 100ms
-        end
-    end         
+        if (hex_refresh_counter == 24'd10_000_000) begin
+                hex_refresh_counter <= 0;
+                latched_display_value <= data_display_value;  // update only once every 100ms
+            end
+    end 
+            
     assign pixel_nibbles[3] = latched_display_value[3:0];       // least significant
     assign pixel_nibbles[2] = latched_display_value[7:4];
     assign pixel_nibbles[1] = latched_display_value[11:8];
