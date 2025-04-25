@@ -1,0 +1,12 @@
+0.7
+2020.2
+Oct 14 2022
+05:20:55
+C:/Users/adity/Downloads/final_project_new/final_project_new.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.v,1745534012,verilog,,,,clk_wiz_0,,uvm,../../../../final_project_new.gen/sources_1/ip/clk_wiz_0,,,,,
+C:/Users/adity/Downloads/final_project_new/final_project_new.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_clk_wiz.v,1745534012,verilog,,C:/Users/adity/Downloads/final_project_new/final_project_new.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.v,,clk_wiz_0_clk_wiz,,uvm,../../../../final_project_new.gen/sources_1/ip/clk_wiz_0,,,,,
+C:/Users/adity/Downloads/final_project_new/final_project_new.sim/sim_1/behav/xsim/glbl.v,1665704903,verilog,,,,glbl,,uvm,,,,,,
+C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sim_1/new/final_project_tb.sv,1745535314,systemVerilog,,C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/hex_driver.sv,,final_project_tb,,uvm,../../../../final_project_new.gen/sources_1/ip/clk_wiz_0,,,,,
+C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/button_sync.sv,1745528418,systemVerilog,C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sim_1/new/final_project_tb.sv;C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/camera_module.sv;C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/hex_driver.sv;C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/top_level.sv,C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/camera_module.sv,,$unit_button_sync_sv_1464148290;sync_debounce,,uvm,../../../../final_project_new.gen/sources_1/ip/clk_wiz_0,,,,,
+C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/camera_module.sv,1745534992,systemVerilog,,C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/hex_driver.sv,,camera_module,,uvm,../../../../final_project_new.gen/sources_1/ip/clk_wiz_0,,,,,
+C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/hex_driver.sv,1745534808,systemVerilog,,C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/top_level.sv,,hex_driver,,uvm,../../../../final_project_new.gen/sources_1/ip/clk_wiz_0,,,,,
+C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/top_level.sv,1745534829,systemVerilog,,C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sim_1/new/final_project_tb.sv,,top_level,,uvm,../../../../final_project_new.gen/sources_1/ip/clk_wiz_0,,,,,
