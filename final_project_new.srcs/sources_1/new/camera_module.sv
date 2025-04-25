@@ -6,8 +6,9 @@ input hsync,
 input pclk,
 input take_photo,
 //outputs for memory go here
-output logic [15:0] current_pixel
-//output logic [15:0] image[0:27][0:27]
+output logic [15:0] current_pixel,
+output logic [15:0] image[0:27][0:27],
+output logic frame_done
 );
 
     localparam H_PIXELS = 640;
@@ -20,7 +21,6 @@ output logic [15:0] current_pixel
     logic [8:0] drawY;
     logic [4:0] sectionX, sectionY, countX;
     logic p_count;
-    logic frame_done;
     //TODO: cross check hsync
     always_ff @(posedge pclk or posedge vsync) begin
         if(vsync) begin
@@ -33,7 +33,7 @@ output logic [15:0] current_pixel
             
            for (int y = 0; y < OUT_H ; y++) begin
                 for (int x = 0; x <OUT_W; x++) begin
-                //image[y][x] <=0;
+                image[y][x] <=0;
                 end
            end
         end
@@ -43,7 +43,7 @@ output logic [15:0] current_pixel
                 current_pixel <= populated_data;
                 p_count <=0;
                 //TODO: check whether this is correct
-                //image[sectionY][sectionX] <=image[sectionY][sectionX] + populated_data;
+                image[sectionY][sectionX] <=image[sectionY][sectionX] + populated_data;
                 if(drawY == 479 && drawX == 639) begin
                 frame_done <=1;
                 
@@ -78,7 +78,7 @@ output logic [15:0] current_pixel
         if (frame_done) begin
             for (int y = 0; y < OUT_H ; y++) begin
                 for (int x = 0; x <OUT_W; x++) begin
-                //image[y][x] <= image[y][x] >> 9;
+                image[y][x] <= image[y][x] >> 9;
                 end
            end
          drawX <=0;
