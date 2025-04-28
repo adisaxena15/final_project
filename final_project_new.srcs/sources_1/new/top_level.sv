@@ -52,7 +52,7 @@ module top_level (
     //variables to show the slowed down data inputs
     logic [15:0] latched_display_value = 16'h0000;
     logic [23:0] hex_refresh_counter = 0;
-    logic [15:0] latched_pixel;
+    logic [15:0] latched_pixel = 16'h0000;
     
     sync_debounce photo_debounce (
     .clk(clk_100MHz),
@@ -69,14 +69,7 @@ module top_level (
     camera_module cam_inst (
     .data(data), .pclk(pclk), .hsync(hsync), .vsync(vsync), .image(image), .take_photo(take_photo), .current_pixel(current_pixel), .frame_done(frame_done)
     );
-/*
-    always_ff @(posedge clk_100MHz) begin
-        if (frame_done)
-            latched_pixel <= image[0][0];
-    end
     
-    assign data_display_value = latched_pixel;
-    */
     assign data_display_value = {8'hFF, data};
     
     
@@ -93,7 +86,21 @@ module top_level (
     assign pixel_nibbles[2] = latched_display_value[7:4];
     assign pixel_nibbles[1] = latched_display_value[11:8];
     assign pixel_nibbles[0] = latched_display_value[15:12];   
-        
+    
+    
+    /*
+    always_ff @(posedge clk_100MHz) begin
+        if (frame_done)
+            latched_pixel <= image[0][0];
+    end
+    
+    assign data_display_value = latched_pixel;
+   
+    assign pixel_nibbles[3] = data_display_value[3:0];       // least significant
+    assign pixel_nibbles[2] = data_display_value[7:4];
+    assign pixel_nibbles[1] = data_display_value[11:8];
+    assign pixel_nibbles[0] = data_display_value[15:12];
+    */
     hex_driver hex_pixel (
         .clk(clk_100MHz),
         .reset(1'b0),
