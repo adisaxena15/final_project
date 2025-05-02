@@ -135,10 +135,11 @@ OPTRACE "set parameters" START { }
   set_property parent.project_path C:/Users/adity/Downloads/final_project_new/final_project_new.xpr [current_project]
   set_property ip_output_repo C:/Users/adity/Downloads/final_project_new/final_project_new.cache/ip [current_project]
   set_property ip_cache_permissions {read write} [current_project]
-  set_property XPM_LIBRARIES XPM_CDC [current_project]
+  set_property XPM_LIBRARIES {XPM_CDC XPM_MEMORY} [current_project]
 OPTRACE "set parameters" END { }
 OPTRACE "add files" START { }
   add_files -quiet C:/Users/adity/Downloads/final_project_new/final_project_new.runs/synth_1/top_level.dcp
+  read_ip -quiet c:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/ip/blk_mem_gen_0_1/blk_mem_gen_0.xci
   read_ip -quiet C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/ip/clk_wiz_0/clk_wiz_0.xci
 OPTRACE "read constraints: implementation" START { }
   read_xdc C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/constrs_1/new/top.xdc
@@ -306,7 +307,7 @@ set rc [catch {
   create_msg_db write_bitstream.pb
 OPTRACE "read constraints: write_bitstream" START { }
 OPTRACE "read constraints: write_bitstream" END { }
-  set_property XPM_LIBRARIES XPM_CDC [current_project]
+  set_property XPM_LIBRARIES {XPM_CDC XPM_MEMORY} [current_project]
   catch { write_mem_info -force -no_partial_mmi top_level.mmi }
 OPTRACE "write_bitstream setup" END { }
 OPTRACE "write_bitstream" START { }

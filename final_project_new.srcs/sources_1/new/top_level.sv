@@ -1,106 +1,94 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 04/24/2025 03:54:49 PM
-// Design Name: 
-// Module Name: top_level
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
 module top_level (
-    input  logic clk_100MHz,    // 100 MHz input clock from board
-    input  logic btn_photo,     // Button input
+    input  logic clk_100MHz,
+    input  logic btn_photo,
     input  logic vsync,
     input  logic hsync,
     input  logic pclk,
     input  logic [7:0] data,
-    
-    output logic xclk,          // Camera XCLK (24 MHz)
-    output logic reset,         // Active-low reset for camera  
+
+    output logic xclk,
+    output logic reset,
     output logic pwdn,
     output logic [7:0] hex_seg,
-	output logic [3:0] hex_grid
+    output logic [3:0] hex_grid,
+    output logic [15:0] LED
 );
-    
+
+    // Clocking
     logic clk_24MHz;
     logic clk_locked;
-    logic frame_done;
-    logic [15:0] image [0:27][0:27];
-    
-    logic [15:0] current_pixel;
-    logic take_photo; 
-    
-    logic [3:0] pixel_nibbles[4];
-    logic [15:0] data_display_value;
-    
-    assign xclk  = clk_24MHz;
+    assign xclk = clk_24MHz;
     assign reset = 1'b1;
-    assign pwdn  = 1'b0;
+    assign pwdn = 1'b0;
+
+    // Camera-side BRAM signals
+    logic [9:0] bram_addr_cam;
+    logic [15:0] bram_din_cam;
+    logic bram_en_cam;
+    logic bram_we_cam;
+
+    // Debug signals
+    logic [9:0] bram_addr_debug;
+    logic [15:0] latched_pixel;
+    logic read_mode;
+    logic [15:0] bram_dout;
+
+    // Camera interaction
+    logic [15:0] current_pixel;
+    logic frame_done;
+    logic take_photo;
+
+    // Pixel display
+    logic [15:0] data_display_value;
+    logic [3:0] pixel_nibbles[4];
+    logic [23:0] pclk_counter = 0;
+    logic pclk_slow = 0;
+    logic frame_done_latched;
+    logic photo_taken;
     
-    //variables to show the slowed down data inputs
-    logic [15:0] latched_display_value = 16'h0000;
-    logic [23:0] hex_refresh_counter = 0;
-    logic [15:0] latched_pixel = 16'h0000;
-    
+    // Debounce
     sync_debounce photo_debounce (
-    .clk(clk_100MHz),
-    .d(btn_photo),
-    .q(take_photo)
-);
-    
-	clk_wiz_0 clk_gen (
-    .clk_out1(clk_24MHz),  
-    .reset(1'b0),           
-    .locked(clk_locked),   
-    .clk_in1(clk_100MHz)
-);
+        .clk(clk_100MHz),
+        .d(btn_photo),
+        .q(take_photo)
+    );
+
+    // BRAM instance
+    blk_mem_gen_0 image_bram (
+        .clka(clk_24MHz),
+        .ena(bram_en),
+        .wea(bram_we),
+        .addra(bram_addr),
+        .dina(bram_din),
+        .douta(bram_dout)
+    );
+
+    // Clock generator
+    clk_wiz_0 clk_gen (
+        .clk_out1(clk_24MHz),
+        .reset(1'b0),
+        .locked(clk_locked),
+        .clk_in1(clk_100MHz)
+    );
+
+    // Camera module controls the BRAM
     camera_module cam_inst (
-    .data(data), .pclk(pclk), .hsync(hsync), .vsync(vsync), .image(image), .take_photo(take_photo), .current_pixel(current_pixel), .frame_done(frame_done)
+        .data(data),
+        .pclk(pclk),
+        .hsync(hsync),
+        .vsync(vsync),
+        .take_photo(take_photo),
+        .current_pixel(current_pixel),
+        .frame_done(frame_done),
+        .bram_addr_cam(bram_addr_cam),
+        .bram_din_cam(bram_din_cam),
+        .bram_dout(bram_dout),
+        .bram_en_cam(bram_en_cam),
+        .bram_we_cam(bram_we_cam)
     );
     
-    assign data_display_value = {8'hFF, data};
-    
-    
-    always_ff @(posedge clk_100MHz) begin
-        hex_refresh_counter <= hex_refresh_counter + 1;
-
-        if (hex_refresh_counter == 24'd10_000_000) begin
-                hex_refresh_counter <= 0;
-                latched_display_value <= data_display_value;  // update only once every 100ms
-            end
-    end 
-            
-    assign pixel_nibbles[3] = latched_display_value[3:0];       // least significant
-    assign pixel_nibbles[2] = latched_display_value[7:4];
-    assign pixel_nibbles[1] = latched_display_value[11:8];
-    assign pixel_nibbles[0] = latched_display_value[15:12];   
-    
-    
-    /*
-    always_ff @(posedge clk_100MHz) begin
-        if (frame_done)
-            latched_pixel <= image[0][0];
-    end
-    
-    assign data_display_value = latched_pixel;
-   
-    assign pixel_nibbles[3] = data_display_value[3:0];       // least significant
-    assign pixel_nibbles[2] = data_display_value[7:4];
-    assign pixel_nibbles[1] = data_display_value[11:8];
-    assign pixel_nibbles[0] = data_display_value[15:12];
-    */
     hex_driver hex_pixel (
         .clk(clk_100MHz),
         .reset(1'b0),
@@ -109,6 +97,63 @@ module top_level (
         .hex_grid(hex_grid)
     );
     
+    photo_control_fsm photo_fsm (
+        .clk(clk_100MHz),
+        .take_photo(take_photo),
+        .frame_done(frame_done),
+        .photo_taken(photo_taken),
+        .frame_done_latched(frame_done_latched)
+    );
+    
+    // MUX between camera and debug reader
+    assign bram_addr = read_mode ? bram_addr_debug : bram_addr_cam;
+    assign bram_din  = bram_din_cam;
+    assign bram_en   = read_mode ? 1'b1 : bram_en_cam;
+    assign bram_we   = read_mode ? 1'b0 : bram_we_cam;
+
+    // Hex display setup
+    assign data_display_value = latched_pixel;
+    assign pixel_nibbles[3] = data_display_value[3:0];
+    assign pixel_nibbles[2] = data_display_value[7:4];
+    assign pixel_nibbles[1] = data_display_value[11:8];
+    assign pixel_nibbles[0] = data_display_value[15:12];
+    
+    assign LED[0] = pclk_slow;
+    
+    assign LED[1] = frame_done;
+    
+    assign LED[2] = photo_taken;
+    // Display scrolling controller
+    /*
+    logic [9:0] debug_addr;
+    logic [23:0] display_counter;
+
+    always_ff @(posedge clk_100MHz) begin
+        display_counter <= display_counter + 1;
+        if (display_counter == 24'd10_000_000) begin
+            display_counter <= 0;
+            debug_addr <= debug_addr + 1;
+        end
+    end
+
+    always_ff @(posedge clk_100MHz) begin
+        if (frame_done_latched) read_mode <= 1;
+        if (read_mode) begin
+            bram_addr_debug <= debug_addr;
+            latched_pixel <= bram_dout;
+        end
+    end
+    */
+    
+    
+    always_ff @(posedge pclk) begin
+        pclk_counter <= pclk_counter + 1;
+        if (pclk_counter == 24'd10_000_000) begin
+            pclk_counter <= 0;
+            latched_pixel <= bram_din_cam;
+            pclk_slow <= ~pclk_slow;
+        end
+    end
     
     
 endmodule

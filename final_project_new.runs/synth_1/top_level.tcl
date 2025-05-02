@@ -82,7 +82,7 @@ set_param synth.vivado.isSynthRun true
 set_msg_config -source 4 -id {IP_Flow 19-2162} -severity warning -new_severity info
 set_property webtalk.parent_dir C:/Users/adity/Downloads/final_project_new/final_project_new.cache/wt [current_project]
 set_property parent.project_path C:/Users/adity/Downloads/final_project_new/final_project_new.xpr [current_project]
-set_property XPM_LIBRARIES XPM_CDC [current_project]
+set_property XPM_LIBRARIES {XPM_CDC XPM_MEMORY} [current_project]
 set_property default_lib xil_defaultlib [current_project]
 set_property target_language Verilog [current_project]
 set_property ip_output_repo c:/Users/adity/Downloads/final_project_new/final_project_new.cache/ip [current_project]
@@ -92,9 +92,13 @@ OPTRACE "Adding files" START { }
 read_verilog -library xil_defaultlib -sv {
   C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/button_sync.sv
   C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/camera_module.sv
+  C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/control_fsm.sv
   C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/hex_driver.sv
   C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/top_level.sv
 }
+read_ip -quiet c:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/ip/blk_mem_gen_0_1/blk_mem_gen_0.xci
+set_property used_in_implementation false [get_files -all c:/Users/adity/Downloads/final_project_new/final_project_new.gen/sources_1/ip/blk_mem_gen_0_1/blk_mem_gen_0_ooc.xdc]
+
 read_ip -quiet C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/ip/clk_wiz_0/clk_wiz_0.xci
 set_property used_in_implementation false [get_files -all c:/Users/adity/Downloads/final_project_new/final_project_new.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc]
 set_property used_in_implementation false [get_files -all c:/Users/adity/Downloads/final_project_new/final_project_new.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc]
@@ -112,6 +116,8 @@ foreach dcp [get_files -quiet -all -filter file_type=="Design\ Checkpoint"] {
 read_xdc C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/constrs_1/new/top.xdc
 set_property used_in_implementation false [get_files C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/constrs_1/new/top.xdc]
 
+read_xdc dont_touch.xdc
+set_property used_in_implementation false [get_files dont_touch.xdc]
 set_param ips.enableIPCacheLiteLoad 1
 
 read_checkpoint -auto_incremental -incremental C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/utils_1/imports/synth_1/top_level.dcp
