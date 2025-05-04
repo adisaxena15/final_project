@@ -12,7 +12,8 @@ module camera_module (
     output logic bram_we_cam,
 
     output logic [15:0] current_pixel,
-    output logic frame_done
+    output logic frame_done,
+    output logic [9:0] drawX_max
 );
 
     localparam OUT_W = 28;
@@ -38,6 +39,17 @@ module camera_module (
     end
     end
     
+    
+    logic [9:0] drawX_max_internal;
+
+    always_ff @(posedge pclk) begin
+        if (photo_active && drawX > drawX_max_internal) begin
+            drawX_max_internal <= drawX;
+        end
+    end
+    
+    assign drawX_max = drawX_max_internal;
+
     always_ff @(posedge pclk or posedge vsync) begin
         if(vsync) begin
         //reset all variables
@@ -72,7 +84,7 @@ module camera_module (
                 pixel_count[pixel_addr] <= count+1;
                 
                 //boundary conditions
-                if(drawX == 500 && drawY == 300) begin
+                if(drawX == 400 && drawY == 400) begin
                     frame_done <= 1;
                 end
                 

@@ -96,7 +96,7 @@ read_verilog -library xil_defaultlib -sv {
   C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/hex_driver.sv
   C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/new/top_level.sv
 }
-read_ip -quiet c:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/ip/blk_mem_gen_0_1/blk_mem_gen_0.xci
+read_ip -quiet C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/ip/blk_mem_gen_0_1/blk_mem_gen_0.xci
 set_property used_in_implementation false [get_files -all c:/Users/adity/Downloads/final_project_new/final_project_new.gen/sources_1/ip/blk_mem_gen_0_1/blk_mem_gen_0_ooc.xdc]
 
 read_ip -quiet C:/Users/adity/Downloads/final_project_new/final_project_new.srcs/sources_1/ip/clk_wiz_0/clk_wiz_0.xci
