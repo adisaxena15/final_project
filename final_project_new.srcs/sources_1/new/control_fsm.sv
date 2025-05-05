@@ -20,10 +20,12 @@ module photo_control_fsm (
 
     state_t state = IDLE;
     
-    typedef enum logic [1:0] {
+    typedef enum logic [2:0] {
         R_IDLE,
         R_READ,
         R_WAIT,
+        R_LATCH,
+        R_CHECK,
         R_DONE
     } read_state_t;
     
@@ -55,6 +57,8 @@ module photo_control_fsm (
         endcase
     end
     
+  logic [15:0] bram_data_latched;
+  
     always_ff @(posedge clk) begin
         case (rstate)
             R_IDLE: begin
@@ -72,17 +76,26 @@ module photo_control_fsm (
             end
     
             R_WAIT: begin
-                if (bram_dout != 0)
+                rstate <= R_LATCH;
+            end
+            
+            R_LATCH: begin
+                bram_data_latched <= bram_dout;
+                rstate <= R_CHECK;
+            end
+
+           R_CHECK: begin
+                if (bram_data_latched != 0)
                     non_zero_count <= non_zero_count + 1;
-    
-                if (read_addr == 10'd783) begin
+            
+                if (read_addr == 10'd783)
                     rstate <= R_DONE;
-                end else begin
+                else begin
                     read_addr <= read_addr + 1;
                     rstate <= R_READ;
                 end
             end
-    
+            
             R_DONE: begin
                 read_mode <= 0;
                 rstate <= R_IDLE;
