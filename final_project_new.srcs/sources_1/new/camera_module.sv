@@ -10,10 +10,8 @@ module camera_module (
     input  logic [15:0] bram_dout,
     output logic bram_en_cam,
     output logic bram_we_cam,
-
-    output logic [15:0] current_pixel,
-    output logic frame_done,
-    output logic [9:0] drawX_max
+    output logic frame_done
+    //output logic [9:0] drawX_max
 );
 
     localparam OUT_W = 28;
@@ -39,7 +37,7 @@ module camera_module (
     end
     end
     
-    
+    /*
     logic [9:0] drawX_max_internal;
 
     always_ff @(posedge pclk) begin
@@ -49,6 +47,7 @@ module camera_module (
     end
     
     assign drawX_max = drawX_max_internal;
+    */
 
     always_ff @(posedge pclk or posedge vsync) begin
         if(vsync) begin

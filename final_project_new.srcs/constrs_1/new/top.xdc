@@ -64,7 +64,9 @@ set_property -dict {PACKAGE_PIN J4 IOSTANDARD LVCMOS25} [get_ports {hex_seg_righ
 
 
 set_property IOSTANDARD LVCMOS25 [get_ports btn_photo]
+set_property IOSTANDARD LVCMOS25 [get_ports btn_read]
 set_property PACKAGE_PIN J2 [get_ports btn_photo]
+set_property PACKAGE_PIN J1 [get_ports btn_read]
 
 
 set_property -dict {PACKAGE_PIN C13 IOSTANDARD LVCMOS33} [get_ports {LED[0]}]
