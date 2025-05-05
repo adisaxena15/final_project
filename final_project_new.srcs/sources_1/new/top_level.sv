@@ -33,8 +33,14 @@ module top_level (
     logic bram_we_cam;
     logic [15:0] bram_dout;
     
-    //bram counter for reading
-    logic read_mode;
+    //bram clear for next photo
+    logic [1:0] bram_mode;
+    logic [9:0] bram_addr_clear;
+    logic [15:0] bram_din_clear;
+    logic bram_en_clear;
+    logic bram_we_clear;
+    
+    //counter counter for 784 registers
     logic [9:0] read_addr;
     logic [9:0] non_zero_count;
     logic [1:0] state;
@@ -57,10 +63,10 @@ module top_level (
     logic pclk_slow = 0;
     logic photo_taken;
     
-    assign bram_din  = bram_din_cam;
-    assign bram_addr = read_mode ? read_addr  : bram_addr_cam;
-    assign bram_en   = read_mode ? 1'b1 : bram_en_cam;
-    assign bram_we   = read_mode ? 1'b0 : bram_we_cam;
+    assign bram_din  = (bram_mode == 2'b10) ? bram_din_clear : bram_din_cam;
+    assign bram_addr = (bram_mode == 2'b10) ? bram_addr_clear : (bram_mode == 2'b01) ? read_addr :bram_addr_cam;
+    assign bram_en   = (bram_mode == 2'b10) ? bram_en_clear : (bram_mode == 2'b01) ? 1'b1 : bram_en_cam;
+    assign bram_we   = (bram_mode == 2'b10) ? bram_we_clear : (bram_mode == 2'b01) ? 1'b0 : bram_we_cam;
 
     // Hex display setup
     assign data_display_value = latched_pixel;
@@ -187,7 +193,12 @@ module top_level (
         .bram_dout(bram_dout),
         .bram_addr_debug(read_addr),
         .non_zero_count(non_zero_count),
-        .read_mode(read_mode)
+        .bram_mode(bram_mode),
+        
+        .bram_addr_clear(bram_addr_clear),
+        .bram_din_clear(bram_din_clear),
+        .bram_we_clear(bram_we_clear),
+        .bram_en_clear(bram_en_clear)
     );
     
 endmodule

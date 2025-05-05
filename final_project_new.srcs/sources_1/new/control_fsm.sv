@@ -4,17 +4,23 @@ module photo_control_fsm (
     input logic frame_done,
     output logic photo_taken,
     
+    output logic [9:0] bram_addr_clear,
+    output logic [15:0] bram_din_clear,
+    output logic bram_we_clear,
+    output logic bram_en_clear,
+
     input logic read_start,
     input logic [15:0] bram_dout,
     output logic [9:0] bram_addr_debug,
     output logic [9:0] non_zero_count,
-    output logic read_mode
+    output logic [1:0] bram_mode
 );
 
-    typedef enum logic [1:0] {
+    typedef enum logic [2:0] {
         IDLE,
         INIT,
         WAIT_PHOTO,
+        CLEAR,
         CAPTURE
     } state_t;
 
@@ -32,23 +38,41 @@ module photo_control_fsm (
     read_state_t rstate = R_IDLE;
     
     logic [9:0] read_addr;
-
+    logic [9:0] clear_addr;
+    
     always_ff @(posedge clk) begin
         case (state)
             IDLE: state <= INIT;
 
             INIT: begin
                 photo_taken <= 0;
+                bram_mode <= 2'b00;
                 state <= WAIT_PHOTO;
             end
 
             WAIT_PHOTO: begin
                 if (take_photo) begin
                     photo_taken <= 1;
-                    state <= CAPTURE;
+                    clear_addr <= 0;
+                    bram_mode <= 2'b10;
+                    state <= CLEAR;
                 end
             end
-
+            CLEAR: begin
+                bram_addr_clear <= clear_addr;
+                bram_din_clear <= 16'b0;
+                
+                if(clear_addr == 10'd783) begin
+                    bram_en_clear <= 0;
+                    bram_we_clear <= 0;
+                    bram_mode <= 2'b00;
+                    state <= CAPTURE;
+                end else begin
+                    bram_en_clear <= 1;
+                    bram_we_clear <= 1;
+                    clear_addr <= clear_addr + 1;
+                end
+            end
             CAPTURE: begin
                 if (frame_done) begin
                     state <= WAIT_PHOTO;
@@ -65,7 +89,7 @@ module photo_control_fsm (
                 if (read_start) begin
                     read_addr <= 0;
                     non_zero_count <= 0;
-                    read_mode <= 1;
+                    bram_mode <= 2'b01;
                     rstate <= R_READ;
                 end
             end
@@ -97,7 +121,7 @@ module photo_control_fsm (
             end
             
             R_DONE: begin
-                read_mode <= 0;
+                bram_mode <= 2'b00;
                 rstate <= R_IDLE;
             end
         endcase
